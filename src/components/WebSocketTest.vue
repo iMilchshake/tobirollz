@@ -79,8 +79,8 @@ export default {
       this.$store.commit("changeConnectionStatus", status);
     },
     setupConnection() {
-      console.log("Starting connection to WebSocket Server")
-      this.connection = new WebSocket("ws://localhost:3000")
+      console.log("Starting connection to WebSocket Server", process.env.VUE_APP_BACKEND_URL)
+      this.connection = new WebSocket(process.env.VUE_APP_BACKEND_URL)
 
       this.connection.onmessage = (event) => {
         const msg = JSON.parse(event.data);
