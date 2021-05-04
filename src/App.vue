@@ -1,13 +1,14 @@
 <template>
-  <div id="main">
-    <h1> TobiRollz </h1>
+  <div id="app">
+    <web-socket-test/>
   </div>
 </template>
 
 <script>
+import WebSocketTest from "@/components/WebSocketTest";
 export default {
   name: 'App',
-  components: {}
+  components: {WebSocketTest}
 }
 </script>
 
@@ -17,7 +18,10 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  background-color: #2b2b2c;
 }
 </style>
