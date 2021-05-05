@@ -1,0 +1,16 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "backend.js",
+  "scripts": {
+    "start": "node backend.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dice.js": "^0.9.3",
+    "express": "^4.17.1",
+    "ws": "^7.4.5"
+  }
+}
