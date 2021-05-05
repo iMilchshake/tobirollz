@@ -186,6 +186,7 @@ export default {
 }
 
 #log {
+  margin-top: 0.5em;
   border-collapse: collapse;
   width: 100%;
   grid-column: 1 / span 1;
@@ -217,7 +218,8 @@ export default {
   padding-bottom: 12px;
   text-align: left;
   background-color: #3c7ba7;
-  color: #d9d9d9;
+  color: black;
+  font-weight: normal;
 }
 
 input, button {
@@ -233,6 +235,7 @@ input, button {
   min-width: 10px;
   box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
   text-align: center;
+  font-family: 'Roboto', sans-serif;
 }
 
 h2 {
