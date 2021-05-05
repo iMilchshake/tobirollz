@@ -1,14 +1,15 @@
 <template>
   <div id="app">
-    <web-socket-test/>
+    <TobiRollz/>
   </div>
 </template>
 
 <script>
-import WebSocketTest from "@/components/WebSocketTest";
+import TobiRollz from "./components/TobiRollz";
+
 export default {
   name: 'App',
-  components: {WebSocketTest}
+  components: {TobiRollz}
 }
 </script>
 

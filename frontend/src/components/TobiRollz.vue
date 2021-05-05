@@ -2,9 +2,11 @@
   <div id="websocket_test">
     <div v-if="connected" id="layout">
 
-      <input id="user" class="text_input" v-model="user" placeholder="username">
-      <input id="msg" class="text_input" v-model="message" placeholder="message" @keyup.enter="sendMessage()">
-      <input type="button" id="send" v-on:click="sendMessage()" value="Send"/>
+      <div id="chat_buttons">
+        <input id="user" class="text_input" v-model="user" placeholder="username">
+        <input id="msg" class="text_input" v-model="message" placeholder="message" @keyup.enter="sendMessage()">
+        <input type="button" id="send" v-on:click="sendMessage()" value="Send"/>
+      </div>
 
       <div id="dicebox">
         <input type="button" v-on:click="sendMessage('d4')" value="D4"/>
@@ -29,7 +31,6 @@
         </tr>
         </tbody>
       </table>
-
     </div>
     <div v-else>
       <h3> Connecting... </h3>
@@ -39,7 +40,7 @@
 
 <script>
 export default {
-  name: "WebSocketTest",
+  name: "TobiRollz",
   data: function () {
     return {
       connection: null,
@@ -57,7 +58,7 @@ export default {
   },
   methods: {
     sendMessage: function (msg) {
-      // msg override
+      // msg override TODO: this sucks
       if (msg !== undefined) {
         this.message = msg;
       }
@@ -127,55 +128,67 @@ export default {
 
 #layout {
   display: grid;
-  grid-template-rows: auto auto auto auto;
-  grid-template-columns: auto 60% auto;
+  grid-template-rows: auto auto auto;
+  grid-template-columns: auto;
   grid-column-gap: 0.5em;
   grid-row-gap: 0.5em;
 }
 
-#head1 {
-  grid-column: 1 / span 3;
-  grid-row: 1 / span 1;
-}
-
-#head2 {
-  grid-column: 1 / span 3;
-  grid-row: 3 / span 1;
-}
-
-#user {
+#chat_buttons {
   grid-column: 1 / span 1;
   grid-row: 1 / span 1;
-}
-
-#msg {
-  grid-column: 2 / span 1;
-  grid-row: 1 / span 1;
-}
-
-#send {
-  grid-column: 3 / span 1;
-  grid-row: 1 / span 1;
-}
-
-#dicebox {
-  grid-column: 1 / span 3;
   width: 100%;
-  grid-row: 2 / span 1;
   gap: 0.5em;
   display: flex;
   flex-direction: row;
   justify-content: center;
+  flex-wrap: wrap;
+}
+
+.text_input {
+  width: 10px;
+}
+
+#dicebox {
+  grid-column: 1 / span 1;
+  grid-row: 2 / span 1;
+  width: 100%;
+  gap: 0.5em;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 #dicebox input {
-  flex: 1;
+  flex-shrink: 1;
+  flex-grow: 1;
+  flex-basis: 100px;
+}
+
+#user {
+  flex-shrink: 1;
+  flex-grow: 2;
+  flex-basis: 100px;
+}
+
+#msg {
+  flex-shrink: 1;
+  flex-grow: 10;
+  flex-basis: 200px;
+}
+
+#send {
+  flex-shrink: 1;
+  flex-grow: 1;
+  flex-basis: 150px;
+  background-color: #3c7ba7;
 }
 
 #log {
   border-collapse: collapse;
   width: 100%;
-  grid-column: 1 / span 3;
+  grid-column: 1 / span 1;
   grid-row: 3 / span 1;
   box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
 }
@@ -219,6 +232,7 @@ input, button {
   color: black;
   min-width: 10px;
   box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+  text-align: center;
 }
 
 h2 {
