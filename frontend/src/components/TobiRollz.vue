@@ -2,21 +2,25 @@
   <div id="websocket_test">
     <div v-if="connected" id="layout">
 
+      <!-- chat buttons -->
       <div id="chat_buttons">
         <input id="user" class="text_input" v-model="user" placeholder="username">
-        <input id="msg" class="text_input" v-model="message" placeholder="message" @keyup.enter="sendMessage()">
-        <input type="button" id="send" v-on:click="sendMessage()" value="Send"/>
+        <input id="msg" class="text_input" v-model="message" placeholder="message"
+               @keyup.enter="sendMessage(message, true)">
+        <input type="button" id="send" v-on:click="sendMessage(message, true)" value="Send"/>
       </div>
 
+      <!-- dice box -->
       <div id="dicebox">
-        <input type="button" v-on:click="sendMessage('d4')" value="D4"/>
-        <input type="button" v-on:click="sendMessage('d6')" value="D6"/>
-        <input type="button" v-on:click="sendMessage('d8')" value="D8"/>
-        <input type="button" v-on:click="sendMessage('d10')" value="D10"/>
-        <input type="button" v-on:click="sendMessage('d12')" value="D12"/>
-        <input type="button" v-on:click="sendMessage('d20')" value="D20"/>
+        <input type="button" v-on:click="sendMessage('d4', false)" value="D4"/>
+        <input type="button" v-on:click="sendMessage('d6', false)" value="D6"/>
+        <input type="button" v-on:click="sendMessage('d8', false)" value="D8"/>
+        <input type="button" v-on:click="sendMessage('d10', false)" value="D10"/>
+        <input type="button" v-on:click="sendMessage('d12', false)" value="D12"/>
+        <input type="button" v-on:click="sendMessage('d20', false)" value="D20"/>
       </div>
 
+      <!-- message log -->
       <table id="log">
         <thead>
         <tr>
@@ -32,8 +36,11 @@
         </tbody>
       </table>
     </div>
-    <div v-else>
+
+    <!-- disconnected message -->
+    <div v-else id="connecting">
       <h3> Connecting... </h3>
+      <h4> This can take up to a couple of seconds</h4>
     </div>
   </div>
 </template>
@@ -57,36 +64,49 @@ export default {
     }
   },
   methods: {
-    sendMessage: function (msg) {
-      // msg override TODO: this sucks
-      if (msg !== undefined) {
-        this.message = msg;
+    sendMessage: function (message, clear_field) {
+      if (this.connected) {
+        // test if inputs are valid
+        if (message !== null && this.user !== null && message !== "" && this.user !== "") {
+          //send message
+          this.connection.send(JSON.stringify({
+            type: 'message',
+            content: {
+              user: this.user,
+              message: message
+            }
+          }));
+        } else {
+          alert('user or message not specified!');
+        }
       }
-
-      // send message
-      if (this.user !== null && this.message !== "") {
-        this.connection.send(JSON.stringify({
-          user: this.user,
-          message: this.message
-        }));
-      } else {
-        alert('user or message not specified!');
-      }
-
       // reset message field
-      this.message = "";
+      if (clear_field)
+        this.message = "";
+    },
+    // send stay_alive request to backend
+    sendStayAlive() {
+      if (this.connected) {
+        this.connection.send(JSON.stringify({
+          type: 'stay_alive',
+        }));
+      }
     },
     changeConnectionStatus(status) {
       this.$store.commit("changeConnectionStatus", status);
     },
     setupConnection() {
-      console.log("Starting connection to WebSocket Server", process.env.VUE_APP_BACKEND_URL)
+      console.log("Starting connection to WebSocket Server")
       this.connection = new WebSocket(process.env.VUE_APP_BACKEND_URL)
 
       this.connection.onmessage = (event) => {
         const msg = JSON.parse(event.data);
         if (msg.type === "log") {
-          this.$store.commit("setMsgLog", msg.log);
+          this.$store.commit("setMsgLog", msg.content);
+        } else if (msg.type === "error") {
+          console.error("backend error:", msg.content);
+        } else {
+          console.error("unknown response:", msg);
         }
       }
 
@@ -110,7 +130,15 @@ export default {
     }
   },
   created: function () {
+    // setup websocket-connection with backend
     this.setupConnection();
+
+    // send stay_alive request every 2 minutes (120sec)
+    setInterval(() => {
+      console.log("stay_alive requested")
+      this.sendStayAlive();
+    }, 120000);
+
   }
 }
 </script>
@@ -238,8 +266,9 @@ input, button {
   font-family: 'Roboto', sans-serif;
 }
 
-h2 {
-  color: #658ba5;
+#connecting h3, h4 {
+  color: #000000;
+  font-weight: normal;
 }
 
 </style>

@@ -6,41 +6,72 @@ const app = express();
 // messages are saved using runtime variables
 let message_log = []
 let message_counter = 0;
-const getMessageLog = function () {
-    return JSON.stringify({
-        type: "log",
-        log: message_log.slice(0, 20)
-    });
+
+// define backend responses
+const sendResponse = function (type) {
+    switch (type) {
+        case 'log':
+            return JSON.stringify({
+                type: "log",
+                content: message_log.slice(0, 15)
+            });
+        case 'invalid':
+            return JSON.stringify({
+                type: "error",
+                content: "invalid request"
+            });
+        default:
+            throw Error("invalid response-type");
+    }
+}
+
+const getDateString = function () {
+    return new Date().toLocaleString('de-DE');
 }
 
 // setup websocket server
 const wsServer = new ws.Server({noServer: true});
 wsServer.on('connection', socket => {
-    console.log(new Date().toLocaleString('de-DE') + " - new connection, sending log..");
+    console.log(getDateString(), "new connection, sending log..");
 
     // send new clients previous chat log
-    socket.send(getMessageLog());
+    socket.send(sendResponse('log'));
 
     // setup message response
     socket.on('message', message => {
+        try {
+            // parse message to json
             let msg_obj = JSON.parse(message);
 
-            // apply dicing
-            msg_obj.message = dice.applyDice(msg_obj.message);
+            // react to message
+            switch (msg_obj.type) {
+                case 'message':
+                    // apply dicing to message
+                    msg_obj.content.message = dice.applyDice(msg_obj.content.message);
 
-            // add message to message log
-            console.log(new Date().toLocaleString('de-DE') + " - " + msg_obj.user + ": " + msg_obj.message);
-            msg_obj.id = message_counter++;
-            message_log.unshift(msg_obj);
+                    // add message to message log
+                    console.log(getDateString(), msg_obj.content.user + ": " + msg_obj.content.message);
+                    msg_obj.content.id = message_counter++;
+                    message_log.unshift(msg_obj.content);
 
-            // broadcast message_log to every user
-            wsServer.clients.forEach(function each(client) {
-                if (client.readyState === ws.OPEN) {
-                    client.send(getMessageLog());
-                }
-            });
+                    // broadcast message_log to every user
+                    wsServer.clients.forEach(function each(client) {
+                        if (client.readyState === ws.OPEN) {
+                            client.send(sendResponse('log'));
+                        }
+                    });
+                    break;
+                case 'stay_alive':
+                    console.log(getDateString(), "stay_alive requested");
+                    break;
+                default:
+                    socket.send(sendResponse('invalid'));
+                    break;
+            }
+        } catch (e) {
+            console.error(getDateString(), "Invalid Request!", e);
         }
-    );
+    });
 });
 
 // host server on port 3000
